@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MuGöl Portal</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --card-bg: #0D2C4F; 
+            --glass-border: rgba(137, 179, 206, 0.25);
+            --text-light: #f0f8ff;
+            --text-subtle: rgba(240, 248, 255, 0.7);
+            --star-color: #FFD700;
+            
+            --sokak-color: #e91e63;
+            --sokak-glow: rgba(233, 30, 99, 0.7);
+            --zumriban-color: #009688;
+            --zumriban-glow: rgba(0, 150, 136, 0.7);
+            --education-color: #9c27b0;
+            --education-glow: rgba(156, 39, 176, 0.7);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { height: 100%; }
+
+        /* ---- GÜNCELLENEN KURAL ---- */
+        body {
+            font-family: 'Nunito', sans-serif;
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow: hidden;
+            /* İçeriği dikey ve yatayda ortalamak için Flexbox kullanıldı. */
+            /* Bu yöntem, 'grid' yöntemine göre daha kararlı çalışabilir. */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* ---- BİTİŞ ---- */
+
+        .background-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: linear-gradient(245deg, #2B65B5, #4A90E2, #3C82D7, #2B65B5);
+            background-size: 400% 400%;
+            animation: animateGradient 15s ease infinite;
+        }
+
+        #app-container { width: 100%; display: grid; place-items: center; }
+        .card-container { perspective: 1200px; }
+        .content-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border); 
+            border-radius: 24px;
+            padding: 45px 55px; 
+            max-width: 720px; 
+            width: 90%; 
+            box-shadow: 0 16px 60px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+            text-align: center; 
+        }
+
+        .logo-container, .card-subtitle, .button-group, #help-link {
+            opacity: 0;
+            animation: fadeInUp 0.7s ease-out forwards;
+        }
+        
+        .logo-container {
+            margin-bottom: 10px;
+            animation-delay: 0.2s;
+        }
+        
+        .portal-logo {
+            max-width: 260px;
+            width: 100%;
+            height: auto;
+        }
+
+        .card-subtitle {
+            font-size: 1.1rem; 
+            font-weight: 400; 
+            color: var(--text-subtle); 
+            margin-bottom: 30px; 
+            line-height: 1.7;
+            animation-delay: 0.4s;
+        }
+
+        .button-group {
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 15px; 
+            animation-delay: 0.6s;
+        }
+        
+        .btn {
+            display: flex; align-items: center; justify-content: center; gap: 14px; 
+            color: var(--text-light);
+            padding: 12px 25px; 
+            text-decoration: none; border-radius: 50px; font-weight: 600; 
+            font-size: 1rem; 
+            transition: all 0.4s ease; position: relative; overflow: hidden;
+            border: none;
+            white-space: nowrap; 
+            width: 100%; 
+            max-width: 280px; 
+        }
+        
+        .btn svg { 
+            width: 26px; 
+            height: 26px; 
+            transition: transform 0.4s ease, width 0.3s ease, height 0.3s ease; 
+        }
+        
+        .btn.btn-sokak { background-color: var(--sokak-color); }
+        .btn.btn-zumriban { background-color: var(--zumriban-color); }
+        .btn.btn-education { background-color: var(--education-color); }
+        
+        .btn.btn-sokak:hover { box-shadow: 0 0 30px -5px var(--sokak-glow); }
+        .btn.btn-zumriban:hover { box-shadow: 0 0 30px -5px var(--zumriban-glow); }
+        .btn.btn-education:hover { box-shadow: 0 0 30px -5px var(--education-glow); }
+        .btn:hover { transform: scale(1.06); filter: brightness(1.1); }
+
+        .btn:hover svg { transform: scale(1.1) rotate(-8deg); }
+        .btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent); transform: skewX(-30deg); transition: left 0.8s ease; }
+        .btn:hover::before { left: 150%; }
+        
+        #help-link {
+            margin-top: 30px;
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            animation-delay: 0.8s;
+        }
+
+        #help-link svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        #help-link:hover {
+            background: rgba(137, 179, 206, 0.15);
+            box-shadow: none;
+            filter: none;
+            transform: scale(1.05);
+        }
+        
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5);
+            display: grid; place-items: center; z-index: 1000; backdrop-filter: blur(8px);
+            opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 20px;
+            padding: 30px 40px; width: 90%; max-width: 500px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            transform: scale(0.95); opacity: 0; transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); opacity: 1; }
+        .modal-content h3 { font-size: 1.8rem; margin-bottom: 10px; text-align: center; }
+        .modal-content p { font-size: 1rem; color: var(--text-subtle); text-align: center; margin-bottom: 25px; line-height: 1.6; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 12px 15px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
+            border-radius: 8px; color: var(--text-light); font-size: 1rem; font-family: 'Nunito', sans-serif;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--sokak-color); box-shadow: 0 0 15px var(--sokak-glow); }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .contact-rating-container { display: flex; gap: 8px; }
+        .star-rating svg { width: 32px; height: 32px; fill: var(--text-subtle); cursor: pointer; transition: fill 0.2s, transform 0.2s; }
+        .star-rating:hover svg, .star-rating.hovered svg, .star-rating.selected svg { fill: var(--star-color); }
+        .star-rating:hover svg { transform: scale(1.15); }
+        .modal-actions { display: flex; gap: 15px; margin-top: 30px; justify-content: flex-end; }
+        .modal-actions .btn { width: auto; padding: 12px 25px; font-size: 1rem; }
+        .modal-actions .btn-secondary { background: transparent; border: 1px solid var(--glass-border); }
+        .modal-actions .btn-secondary:hover { background: rgba(255,255,255,0.1); box-shadow: none; }
+        .modal-actions .btn-primary { background: var(--sokak-color); }
+
+        @keyframes animateGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @media (max-width: 768px) {
+            .content-card { padding: 40px 30px; }
+            .card-subtitle { font-size: 1rem; }
+            .portal-logo {
+                max-width: 220px;
+            }
+        }
+        
+        @media (min-width: 800px) {
+            .button-group {
+                flex-direction: row;
+                justify-content: center;
+                gap: 20px;
+            }
+            
+            .btn {
+                padding: 14px 30px;
+                font-size: 1.05rem;
+                width: auto;
+            }
+
+            .btn svg {
+                width: 28px;
+                height: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-container"></div>
+
+    <div id="app-container">
+        <div class="card-container" id="card-container">
+            <div class="content-card">
+                <div class="logo-container">
+                    <img src="logo.png" alt="MuGöl Portal Logo" class="portal-logo">
+                </div>
+                <h2 class="card-subtitle">“Uygulamalar arasında köprü kuran akıllı portal.”
+</h2>
+                
+                <div class="button-group">
+                    <a href="https://mugoleducationhelp-ops.github.io/duygularin.sokagi/" class="btn btn-sokak">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 5h4v5l-2-1.5L9 10V5z"/>
+                        </svg>
+                        <span>Duyguların Sokağı</span>
+                    </a>
+                    <a href="https://mugoleducationhelp-ops.github.io/zumriban/" class="btn btn-zumriban">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+                        <span>Zümriban</span>
+                    </a>
+                    <a href="https://mugoleducationhelp-ops.github.io/education/" class="btn btn-education">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                           <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73V13.6l5 2.73 5-2.73v2.39z"/>
+                        </svg>
+                        <span>Eğitim</span>
+                    </a>
+                </div>
+                <a href="#" id="help-link" class="btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                    </svg>
+                    <span>Yardım & Destek</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="contactModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Yardım & Destek</h3>
+            <p>Sorularınızı veya geri bildirimlerinizi bize gönderin. E-posta uygulamanız açılacaktır.</p>
+            <form id="contactForm">
+                <div class="form-group"><label for="contactSubject">Konu:</label><input type="text" id="contactSubject" placeholder="Örn: Geri Bildirim" required></div>
+                <div class="form-group"><label for="contactBody">Mesajınız:</label><textarea id="contactBody" placeholder="Lütfen sorununuzu veya önerinizi detaylıca açıklayın..." required></textarea></div>
+                <div class="form-group">
+                    <label>Deneyiminizi Puanlayın (İsteğe Bağlı):</label>
+                    <div id="contactRating" class="contact-rating-container">
+                        <span class="star-rating" data-value="1"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span>
+                        <span class="star-rating" data-value="2"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span>
+                        <span class="star-rating" data-value="3"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span>
+                        <span class="star-rating" data-value="4"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span>
+                        <span class="star-rating" data-value="5"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                     <button type="button" id="closeContactModalBtn" class="btn btn-secondary">Kapat</button>
+                     <button type="submit" class="btn btn-primary">E-posta Gönder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="redirectModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Yönlendiriliyorsunuz...</h3>
+            <p>Seçtiğiniz uygulama <span id="countdown" style="font-weight: bold; font-size: 1.2em;">5</span> saniye içinde açılacak.</p>
+            <div class="modal-actions" style="justify-content: center;">
+                 <button type="button" id="cancelRedirectBtn" class="btn btn-secondary">İptal Et</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const helpLink = document.getElementById('help-link');
+            const contactModal = document.getElementById('contactModal');
+            const closeContactModalBtn = document.getElementById('closeContactModalBtn');
+            const contactForm = document.getElementById('contactForm');
+            const ratingStars = document.querySelectorAll('#contactRating .star-rating');
+            let currentContactRating = 0;
+
+            helpLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                contactModal.classList.add('active');
+            });
+            const closeModal = () => contactModal.classList.remove('active');
+            closeContactModalBtn.addEventListener('click', closeModal);
+            contactModal.addEventListener('click', (e) => { if (e.target === contactModal) closeModal(); });
+
+            ratingStars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const clickedValue = parseInt(star.dataset.value);
+                    currentContactRating = (currentContactRating === clickedValue) ? 0 : clickedValue;
+                    ratingStars.forEach(s => s.classList.toggle('selected', parseInt(s.dataset.value) <= currentContactRating));
+                });
+                star.addEventListener('mouseover', () => {
+                    ratingStars.forEach(s => s.classList.toggle('hovered', parseInt(s.dataset.value) <= parseInt(star.dataset.value)));
+                });
+            });
+            document.getElementById('contactRating').addEventListener('mouseleave', () => ratingStars.forEach(s => s.classList.remove('hovered')));
+
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const subject = document.getElementById('contactSubject').value.trim();
+                const body = document.getElementById('contactBody').value.trim();
+                const userName = 'Bir Kullanıcı'; 
+                let ratingText = '';
+                if (currentContactRating > 0) {
+                    const filledStars = '★'.repeat(currentContactRating);
+                    const emptyStars = '☆'.repeat(5 - currentContactRating);
+                    ratingText = `\n\n-------------------\nPortal Deneyimi Puanı: ${filledStars}${emptyStars} (${currentContactRating}/5)`;
+                }
+                const mailtoBody = `${body}${ratingText}\n\nSaygılarımla,\n${userName}\n(Bu e-posta MuGöl Portal üzerinden gönderilmiştir.)`;
+                const mailToLink = `mailto:mugol.education.help@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailtoBody)}`;
+                window.location.href = mailToLink;
+                closeModal();
+            });
+
+            const redirectModal = document.getElementById('redirectModal');
+            const cancelRedirectBtn = document.getElementById('cancelRedirectBtn');
+            const countdownSpan = document.getElementById('countdown');
+            const projectLinks = document.querySelectorAll('.button-group .btn');
+            let countdownInterval;
+            let targetUrl = '';
+
+            const startRedirectCountdown = (baseUrl) => {
+                targetUrl = baseUrl;
+                let seconds = 5;
+                countdownSpan.textContent = seconds;
+                redirectModal.classList.add('active');
+                countdownInterval = setInterval(() => {
+                    seconds--;
+                    countdownSpan.textContent = seconds;
+                    if (seconds <= 0) {
+                        clearInterval(countdownInterval);
+                        window.location.href = targetUrl;
+                    }
+                }, 1000);
+            };
+
+            const cancelRedirect = () => {
+                clearInterval(countdownInterval);
+                redirectModal.classList.remove('active');
+            };
+
+            projectLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const url = link.getAttribute('href');
+                    startRedirectCountdown(url);
+                });
+            });
+
+            cancelRedirectBtn.addEventListener('click', cancelRedirect);
+            redirectModal.addEventListener('click', (e) => {
+                if (e.target === redirectModal) cancelRedirect();
+            });
+        });
+    </script>
+
+</body>
+</html>
