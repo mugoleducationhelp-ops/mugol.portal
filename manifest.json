@@ -1,7 +1,7 @@
 {
-  "name": "MuGöl Portal",
-  "short_name": "MuGöl",
-  "description": "MuGöl Portal - Tüm uygulamalarınız bir arada",
+  "name": "MuGöl PORTAL",
+  "short_name": "MuGöl PORTAL",
+  "description": "MuGöl PORTAL - Tüm uygulamalarınız bir arada",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
